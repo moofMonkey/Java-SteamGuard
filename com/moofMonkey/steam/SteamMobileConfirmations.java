@@ -67,7 +67,6 @@ public class SteamMobileConfirmations extends SteamBase {
 	public static final String URL_COMMUNITY_BASE = "https://steamcommunity.com";
 	public static final String CONFIRMATION_WEB = URL_COMMUNITY_BASE + "/" + "mobileconf" + "/" + METHOD;
 	private Properties props;
-	public String myAvatar = "";
 	
 	public static String getFullAvatar(String miniAvatar) {
 		if(miniAvatar.matches(".*_full\\.jpg"))
@@ -175,7 +174,7 @@ public class SteamMobileConfirmations extends SteamBase {
 				if(!findedMyAvatar) {
 					if (s.indexOf("<img src=\"") > -1) {
 						s1 = s.trim();
-						myAvatar = extractStringValue(s1, "src");
+						//myAvatar = extractStringValue(s1, "src");
 						findedMyAvatar = true;
 					}
 				} else
@@ -203,8 +202,6 @@ public class SteamMobileConfirmations extends SteamBase {
 
 	public ArrayList<String> getConfirmationInfos(ArrayList<Confirmation> confs) throws Throwable {
 		ArrayList<String> strs = new ArrayList<String>();
-		
-		strs.add(myAvatar);
 
 		if (confs.size() == 0)
 			strs.add("No confirmations found");
