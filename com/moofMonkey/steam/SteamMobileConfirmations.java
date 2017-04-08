@@ -69,6 +69,11 @@ public class SteamMobileConfirmations extends SteamBase {
 		props = _props;
 		browser_cookies = props.browser_cookies;
 		STEAMID64 = props.steamid64;
+		if(STEAMID64 == 0) {
+			Object[] data = SteamCookies.getData(props);
+			STEAMID64 = props.steamid64 = extractGSONLongValue((String) data[1], "steamid");
+			props.saveProps();
+		}
 	}
 
 	public static final String METHOD = "conf";
