@@ -31,7 +31,7 @@ public class Main {
 				System.out.println(new SteamCodeGenerator(props).generateSteamGuardCode());
 				break;
 			case "cookies":
-				System.out.println(SteamCookies.getData(props)[1]);
+				System.out.println(props.browser_cookies);
 				break;
 			default:
 				System.out.println("There are only methods [conf, url, code, cookies]");
