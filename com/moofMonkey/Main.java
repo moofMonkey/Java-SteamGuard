@@ -5,7 +5,6 @@ import java.io.File;
 import com.moofMonkey.steam.Properties;
 import com.moofMonkey.steam.SteamBase;
 import com.moofMonkey.steam.SteamCodeGenerator;
-import com.moofMonkey.steam.SteamCookies;
 import com.moofMonkey.steam.SteamMobileConfirmations;
 
 public class Main {
