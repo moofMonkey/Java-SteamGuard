@@ -212,8 +212,18 @@ public class SteamMobileConfirmations extends SteamBase {
 	}
 	
 	public ArrayList<Confirmation> getConfirmations() throws Throwable {
-		String toFind = CONFIRMATION_WEB + "?" + getConfirmationParams(METHOD);
-		return getConfirmations(getResponse(toFind, browser_cookies));
+		try {
+			String toFind = CONFIRMATION_WEB + "?" + getConfirmationParams(METHOD);
+			return getConfirmations(getResponse(toFind, browser_cookies));
+		} catch(java.net.MalformedURLException t) {
+			if(t.getMessage().indexOf("steammobile") > -1) {
+				browser_cookies = (String) SteamCookies.getData(props)[0];
+				props.browser_cookies = browser_cookies;
+				props.saveProps();
+				return getConfirmations();
+			}
+		}
+		return null;
 	}
 	
 	public static String getInfo(String str) {
@@ -245,16 +255,6 @@ public class SteamMobileConfirmations extends SteamBase {
 	}
 	
 	public ArrayList<String> getNewResponse() throws Throwable {
-		try {
-			return getConfirmationInfos(getConfirmations());
-		} catch(java.net.MalformedURLException t) {
-			if(t.getMessage().indexOf("steammobile") > -1) {
-				browser_cookies = (String) SteamCookies.getData(props)[0];
-				props.browser_cookies = browser_cookies;
-				props.saveProps();
-				return getNewResponse();
-			}
-		}
-		return null;
+		return getConfirmationInfos(getConfirmations());
 	}
 }
