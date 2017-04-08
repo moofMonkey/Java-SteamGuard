@@ -57,10 +57,10 @@ public class SteamMobileConfirmations extends SteamBase {
 
 	private String browser_cookies;
 	private long STEAMID64;
-	public SteamMobileConfirmations(Properties _props, Object[] data) throws Throwable {
+	public SteamMobileConfirmations(Properties _props) throws Throwable {
 		props = _props;
-		browser_cookies = (String) data[0];
-		STEAMID64 = extractGSONLongValue((String) data[1], "steamid");
+		browser_cookies = props.browser_cookies;
+		STEAMID64 = props.steamid64;
 	}
 
 	public static final String METHOD = "conf";
@@ -222,8 +222,14 @@ public class SteamMobileConfirmations extends SteamBase {
 		
 		try {
 			return getConfirmationInfos(getConfirmations(getResponse(toFind, browser_cookies)));
-		} catch (Throwable t) {
-			throw new Throwable("Invalid data!", t);
+		} catch(java.net.MalformedURLException t) {
+			if(t.getMessage().indexOf("steammobile") > -1) {
+				browser_cookies = (String) SteamCookies.getData(props)[0];
+				props.browser_cookies = browser_cookies;
+				props.saveProps();
+				return getNewResponse();
+			}
 		}
+		return null;
 	}
 }

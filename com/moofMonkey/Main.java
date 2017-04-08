@@ -11,7 +11,7 @@ import com.moofMonkey.steam.SteamMobileConfirmations;
 public class Main {
 	public static void main(String[] args) throws Throwable {
 		if(args.length < 2) {
-			System.out.println("Usage: java -jar SteamGuard.jar <config> <conf/url/code> [url]");
+			System.out.println("Usage: java -jar SteamGuard.jar <config> <conf/url/code/cookies> [url]");
 			System.exit(0);
 		}
 		
@@ -20,18 +20,21 @@ public class Main {
 		
 		switch(args[1]) {
 			case "conf":
-				SteamMobileConfirmations conf = new SteamMobileConfirmations(props, SteamCookies.getData(props));
+				SteamMobileConfirmations conf = new SteamMobileConfirmations(props);
 				for(String s : conf.getNewResponse())
 					System.out.println(s);
 				break;
 			case "url":
-				new SteamBase().getResponse(args[2], (String) SteamCookies.getData(props)[0]);
+				System.out.println(new SteamBase().getResponse(args[2], props.browser_cookies));
 				break;
 			case "code":
 				System.out.println(new SteamCodeGenerator(props).generateSteamGuardCode());
 				break;
+			case "cookies":
+				System.out.println(SteamCookies.getData(props)[1]);
+				break;
 			default:
-				System.out.println("There are only methods [conf, url, code]");
+				System.out.println("There are only methods [conf, url, code, cookies]");
 		}
 	}
 }

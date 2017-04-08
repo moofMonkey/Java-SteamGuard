@@ -39,7 +39,6 @@ public class SteamBase {
 				return DatatypeConverter.parseBase64Binary(s);
 			} catch (Exception ex) {
 				throw new Throwable("Invalid Base64 string!", ex);
-				//return s.getBytes();
 			}
 		}
 
@@ -82,7 +81,10 @@ public class SteamBase {
 		String tmp = "";
 		boolean finded = false;
 
-		for (int i = JSON.indexOf(value) + value.length() + 1; i < json.length; i++) {
+		int index = JSON.indexOf(value);
+		if(index < 0)
+			return "";
+		for (int i = index + value.length() + 1; i < json.length; i++) {
 			char element = json[i];
 
 			if (element == '"')
@@ -123,22 +125,37 @@ public class SteamBase {
 	}
 	
 	public static long extractGSONLongValue(String JSON, String value) {
-		return Long.parseLong(extractGSONStringValue(JSON, value));
+		String s = extractGSONStringValue(JSON, value);
+		if(s.length() == 0)
+			return 0;
+		return Long.parseLong(s);
 	}
 	
 	public static boolean extractGSONBooleanValue(String JSON, String value) {
-		return Boolean.parseBoolean(extractGSONRaw(JSON, value));
+		String s = extractGSONRaw(JSON, value);
+		if(s.length() == 0)
+			return false;
+		return Boolean.parseBoolean(s);
 	}
 
 	public static BigInteger extractBigIntegerValue(String JSON, String value) {
-		return new BigInteger(extractStringValue(JSON, value));
+		String s = extractStringValue(JSON, value);
+		if(s.length() == 0)
+			return new BigInteger("0");
+		return new BigInteger(s);
 	}
 	
 	public static boolean extractBooleanValue(String JSON, String value) {
-		return Boolean.parseBoolean(extractStringValue(JSON, value));
+		String s = extractStringValue(JSON, value);
+		if(s.length() == 0)
+			return false;
+		return Boolean.parseBoolean(s);
 	}
 
 	public static long extractLongValue(String JSON, String value) {
-		return Long.parseLong(extractStringValue(JSON, value));
+		String s = extractStringValue(JSON, value);
+		if(s.length() == 0)
+			return 0;
+		return Long.parseLong(s);
 	}
 }

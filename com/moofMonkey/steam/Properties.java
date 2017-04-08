@@ -13,24 +13,53 @@ import java.security.SecureRandom;
 import javax.xml.bind.DatatypeConverter;
 
 public class Properties extends SteamBase {
-	public String identify_secret, shared_secret, machineName, username, password;
+	public String identify_secret, shared_secret, machineName, username, password, browser_cookies;
+	public long steamid64;
+	private File settings;
 	
-	public Properties (
+	public Properties ( // For creating
 			String _identify_secret,
 			String _shared_secret,
 			String _machineName,
 			String _username,
-			String _password
+			String _password,
+			File _settings
+	) throws Throwable {
+		this (
+			_identify_secret,
+			_shared_secret,
+			_machineName,
+			_username,
+			_password,
+			0,
+			"",
+			_settings
+		);
+	}
+	
+	public Properties ( // For importing
+			String _identify_secret,
+			String _shared_secret,
+			String _machineName,
+			String _username,
+			String _password,
+			long _steamid64,
+			String _browser_cookies,
+			File _settings
 	) throws Throwable {
 		identify_secret = _identify_secret;
 		shared_secret = _shared_secret;
 		machineName = _machineName;
 		username = _username;
 		password = _password;
+		steamid64 = _steamid64;
+		browser_cookies = _browser_cookies;
+		settings = _settings;
 	}
 	
 	public static Properties getProps(File settings) throws Throwable {
-		String identify_secret = "", shared_secret = "", machineName = "", userName = "", password = "";
+		String identify_secret = "", shared_secret = "", machineName = "", userName = "", password = "", browser_cookies = "";
+		long steamid64 = 0;
 		BufferedReader in;
 
 		Properties props = null;
@@ -56,8 +85,12 @@ public class Properties extends SteamBase {
 			}
 			in.close();
 			
-			props = new Properties(identify_secret, shared_secret, machineName, userName, password);
-			props.saveProps(settings);
+			props = new Properties(identify_secret, shared_secret, machineName, userName, password, settings);
+			Object[] data = SteamCookies.getData(props);
+			props.browser_cookies = (String) data[0];
+			props.steamid64 = extractGSONLongValue((String) data[1], "steamid");
+			props.settings = settings;
+			props.saveProps();
 		} else {
 			in = new BufferedReader(new InputStreamReader(new FileInputStream(settings)));
 			String base64 = "";
@@ -71,15 +104,17 @@ public class Properties extends SteamBase {
 			machineName = extractStringValue(json, "machineName");
 			userName = extractStringValue(json, "username");
 			password = extractStringValue(json, "password");
+			steamid64 = extractLongValue(json, "steamid64");
+			browser_cookies = extractStringValue(json, "browser_cookies");
 		}
 
 		return
 				props == null
-					? new Properties(identify_secret, shared_secret, machineName, userName, password)
+					? new Properties(identify_secret, shared_secret, machineName, userName, password, steamid64, browser_cookies, settings)
 					: props;
 	}
 
-	public void saveProps(File settings) throws Throwable {
+	public void saveProps() throws Throwable {
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(settings)));
 		bw.write(_Base64.ToBase64String(toString().getBytes()));
 		bw.close();
@@ -93,6 +128,8 @@ public class Properties extends SteamBase {
 				+ "machineName=\"" + machineName + "\", "
 				+ "username=\"" + username + "\", "
 				+ "password=\"" + password + "\", "
+				+ "steamid64=\"" + steamid64 + "\", "
+				+ "browser_cookies=\"" + browser_cookies + "\", "
 				+ "}";
 	}
 }

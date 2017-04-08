@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyFactory;
 import java.security.PublicKey;
@@ -26,6 +27,7 @@ public class SteamCookies extends SteamBase {
 	 * @throws Throwable
 	 */
 	public static Object[] getData(Properties props) throws Throwable {
+		System.err.println("Please wait, getting new cookies...");
 		Object[] data;
 		try {
 			data = getData(props, -1, "");;
@@ -96,6 +98,9 @@ public class SteamCookies extends SteamBase {
 
 		boolean success = extractGSONBooleanValue(doLogin, "success");
 		String message = extractGSONStringValue(doLogin, "message");
+		boolean twoFA = extractGSONBooleanValue(doLogin, "requires_twofactor");
+		if(twoFA)
+			throw new Throwable("Something wrong with 2FA. " + doLogin);
 		if(!success) {
 			if(message.equals("Please verify your humanity by re-entering the characters in the captcha below."))
 				throw new CaptchaException(extractGSONLongValue(doLogin, "captcha_gid"));
@@ -151,7 +156,7 @@ public class SteamCookies extends SteamBase {
 	}
 	
 	public static String post(String url, String postStr) throws Throwable {
-		HttpsURLConnection con = (HttpsURLConnection) new URL(url).openConnection();
+		HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
 		con.setDoOutput(true);
 		con.setDoInput(true);
 		con.setRequestMethod("POST");
