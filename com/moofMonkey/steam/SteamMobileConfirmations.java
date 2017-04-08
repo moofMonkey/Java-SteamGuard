@@ -53,6 +53,14 @@ public class SteamMobileConfirmations extends SteamBase {
 			return URL_COMMUNITY_BASE + "/mobileconf/ajaxop?" + "op=" + value + "&" + getConfirmationParams(value) + "&cid="
 					+ id + "&ck=" + key;
 		}
+
+		public boolean accept(Properties props) throws Throwable {
+			return extractGSONBooleanValue(getResponse(getURL(EConfirm.ALLOW), props.browser_cookies).get(0), "success");
+		}
+
+		public boolean deny(Properties props) throws Throwable {
+			return extractGSONBooleanValue(getResponse(getURL(EConfirm.DISALLOW), props.browser_cookies).get(0), "success");
+		}
 	}
 
 	private String browser_cookies;
@@ -104,15 +112,24 @@ public class SteamMobileConfirmations extends SteamBase {
 				new String(_Base64.ToBase64String(_HMACSHA1.encode(secretBytes, dataBytes)))
 		);
 	}
-
+	
 	public String getConfirmationParams(Object tag) throws Throwable {
 		String strTag = tag.toString();
-		if (base64encryptedConfirmationHash(tc.currentTimeSeconds(), strTag) == null)
-			return "";
-		return String.format("p=%s&a=%s&k=%s&t=%d&m=android&tag=%s",
-				new Object[] { "android:" + props.machineName, STEAMID64,
-						base64encryptedConfirmationHash(tc.currentTimeSeconds(), strTag),
-						Long.valueOf(tc.currentTimeSeconds()), tag });
+		return String.format (
+			"p=%s&a=%s&k=%s&t=%d&m=android&tag=%s",
+			new Object[] {
+				"android:" + props.machineName,
+				STEAMID64,
+				base64encryptedConfirmationHash (
+					tc.currentTimeSeconds(),
+					strTag
+				),
+				Long.valueOf (
+					tc.currentTimeSeconds()
+				),
+				strTag
+			}
+		);
 	}
 
 	public ArrayList<Confirmation> getConfirmations(ArrayList<String> response) {
@@ -189,6 +206,11 @@ public class SteamMobileConfirmations extends SteamBase {
 		return confs;
 	}
 	
+	public ArrayList<Confirmation> getConfirmations() throws Throwable {
+		String toFind = CONFIRMATION_WEB + "?" + getConfirmationParams(METHOD);
+		return getConfirmations(getResponse(toFind, browser_cookies));
+	}
+	
 	public static String getInfo(String str) {
 		if(str.trim().equals("</div>"))
 			return "</div>";
@@ -218,10 +240,8 @@ public class SteamMobileConfirmations extends SteamBase {
 	}
 	
 	public ArrayList<String> getNewResponse() throws Throwable {
-		String toFind = CONFIRMATION_WEB + "?" + getConfirmationParams(METHOD);
-		
 		try {
-			return getConfirmationInfos(getConfirmations(getResponse(toFind, browser_cookies)));
+			return getConfirmationInfos(getConfirmations());
 		} catch(java.net.MalformedURLException t) {
 			if(t.getMessage().indexOf("steammobile") > -1) {
 				browser_cookies = (String) SteamCookies.getData(props)[0];

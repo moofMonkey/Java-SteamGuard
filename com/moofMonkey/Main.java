@@ -6,6 +6,7 @@ import com.moofMonkey.steam.Properties;
 import com.moofMonkey.steam.SteamBase;
 import com.moofMonkey.steam.SteamCodeGenerator;
 import com.moofMonkey.steam.SteamMobileConfirmations;
+import com.moofMonkey.steam.SteamMobileConfirmations.Confirmation;
 
 public class Main {
 	public static void main(String[] args) throws Throwable {
@@ -19,6 +20,13 @@ public class Main {
 		
 		switch(args[1]) {
 			case "conf":
+				if(args.length == 3)
+					if(args[2].equalsIgnoreCase("acceptall")) {
+						SteamMobileConfirmations conf = new SteamMobileConfirmations(props);
+						for(Confirmation iConf : conf.getConfirmations())
+							iConf.accept(props);
+						break;
+					}
 				SteamMobileConfirmations conf = new SteamMobileConfirmations(props);
 				for(String s : conf.getNewResponse())
 					System.out.println(s);
