@@ -84,10 +84,11 @@ public class SteamBase {
 		int index = JSON.indexOf(value);
 		if(index < 0)
 			return "";
+		char prev = 0, element;
 		for (int i = index + value.length() + 1; i < json.length; i++) {
-			char element = json[i];
+			element = json[i];
 
-			if (element == '"')
+			if (element == '"' && prev != '\\')
 				if (finded)
 					break;
 				else {
@@ -97,6 +98,7 @@ public class SteamBase {
 
 			if (finded)
 				tmp += element;
+			prev = element;
 		}
 
 		return tmp;

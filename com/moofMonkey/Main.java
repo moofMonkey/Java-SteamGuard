@@ -15,7 +15,7 @@ public class Main {
 			System.exit(0);
 		}
 		
-		File settings = new File(args[0]);
+		File settings = new File(args[0] + ".gz");
 		Properties props = Properties.getProps(settings);
 		
 		switch(args[1]) {
