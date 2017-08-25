@@ -2,4 +2,4 @@
 Just.. Just steam guard at java.
 
 ## Needed APIs
-GSON
+GSON (https://mvnrepository.com/artifact/com.google.code.gson/gson)
