@@ -33,8 +33,8 @@ public class Properties extends SteamBase {
 			_username,
 			_password,
 			0,
-			"",
 			_revocation_code,
+			"",
 			_settings
 		);
 	}
