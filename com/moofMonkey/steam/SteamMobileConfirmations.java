@@ -93,7 +93,7 @@ public class SteamMobileConfirmations extends SteamBase {
 	}
 
 	public String base64encryptedConfirmationHash(long time, String tag) throws Throwable {
-		byte[] secretBytes = _Base64.FromBase64String(props.identify_secret);
+		byte[] secretBytes = _Base64.FromBase64String(props.identity_secret);
 		int dataLen = 8;
 
 		if (tag != null)

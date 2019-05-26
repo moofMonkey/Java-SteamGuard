@@ -12,15 +12,13 @@ import java.security.SecureRandom;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.xml.bind.DatatypeConverter;
-
 public class Properties extends SteamBase {
-	public String identify_secret, shared_secret, machineName, username, password, revocation_code, browser_cookies;
+	public String identity_secret, shared_secret, machineName, username, password, revocation_code, browser_cookies;
 	public long steamid64;
 	private File settings;
 	
 	public Properties ( // For creating
-			String _identify_secret,
+			String _identity_secret,
 			String _shared_secret,
 			String _machineName,
 			String _username,
@@ -29,7 +27,7 @@ public class Properties extends SteamBase {
 			File _settings
 	) throws Throwable {
 		this (
-			_identify_secret,
+			_identity_secret,
 			_shared_secret,
 			_machineName,
 			_username,
@@ -42,7 +40,7 @@ public class Properties extends SteamBase {
 	}
 	
 	public Properties ( // For importing
-			String _identify_secret,
+			String _identity_secret,
 			String _shared_secret,
 			String _machineName,
 			String _username,
@@ -52,7 +50,7 @@ public class Properties extends SteamBase {
 			String _browser_cookies,
 			File _settings
 	) throws Throwable {
-		identify_secret = _identify_secret;
+		identity_secret = _identity_secret;
 		shared_secret = _shared_secret;
 		machineName = _machineName;
 		username = _username;
@@ -64,7 +62,7 @@ public class Properties extends SteamBase {
 	}
 	
 	public static Properties getProps(File settings) throws Throwable {
-		String identify_secret = "", shared_secret = "", machineName = "", userName = "", password = "", browser_cookies = "", revocation_code = "";
+		String identity_secret = "", shared_secret = "", machineName = "", userName = "", password = "", browser_cookies = "", revocation_code = "";
 		long steamid64 = 0;
 		BufferedReader in;
 
@@ -75,8 +73,8 @@ public class Properties extends SteamBase {
 			userName = in.readLine();
 			System.out.println("Please write your password");
 			password = in.readLine();
-			System.out.println("Please write your identify_secret");
-			identify_secret = in.readLine();
+			System.out.println("Please write your identity_secret");
+			identity_secret = in.readLine();
 			System.out.println("Please write your shared_secret");
 			shared_secret = in.readLine();
 			System.out.println("Please write your revocation code");
@@ -89,11 +87,11 @@ public class Properties extends SteamBase {
 				byte[] b = new byte[256];
 				secRand.nextBytes(b);
 				MessageDigest md = MessageDigest.getInstance("SHA-256");
-				machineName = "android:" + DatatypeConverter.printHexBinary(md.digest(b)).toLowerCase();
+				machineName = "android:" + _HEX.encode(md.digest(b)).toLowerCase();
 			}
 			in.close();
 			
-			props = new Properties(identify_secret, shared_secret, machineName, userName, password, revocation_code, settings);
+			props = new Properties(identity_secret, shared_secret, machineName, userName, password, revocation_code, settings);
 			Object[] data = SteamCookies.getData(props);
 			props.browser_cookies = (String) data[0];
 			props.steamid64 = extractGSONLongValue((String) data[1], "steamid");
@@ -101,12 +99,10 @@ public class Properties extends SteamBase {
 			props.saveProps();
 		} else {
 			in = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(settings))));
-			String json = "";
-			String line;
-			while ((line = in.readLine()) != null)
-				json += line + '\n';
+			String json = in.readLine();
 			in.close();
-			identify_secret = extractStringValue(json, "identify_secret");
+			json = new String(_Base64.FromBase64String(json));
+			identity_secret = extractStringValue(json, "identify_secret");
 			shared_secret = extractStringValue(json, "shared_secret");
 			machineName = extractStringValue(json, "machineName");
 			userName = extractStringValue(json, "username");
@@ -118,7 +114,7 @@ public class Properties extends SteamBase {
 
 		return
 				props == null
-					? new Properties(identify_secret, shared_secret, machineName, userName, password, steamid64, revocation_code, browser_cookies, settings)
+					? new Properties(identity_secret, shared_secret, machineName, userName, password, steamid64, revocation_code, browser_cookies, settings)
 					: props;
 	}
 
@@ -132,7 +128,7 @@ public class Properties extends SteamBase {
 	@Override
 	public String toString() {
 		return    "{"
-				+ "identify_secret=\"" + identify_secret + "\", "
+				+ "identify_secret=\"" + identity_secret + "\", "
 				+ "shared_secret=\"" + shared_secret + "\", "
 				+ "machineName=\"" + machineName + "\", "
 				+ "username=\"" + username + "\", "

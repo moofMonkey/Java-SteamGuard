@@ -9,12 +9,15 @@ import java.util.ArrayList;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
+import java.util.Base64;
 
 public class SteamBase {
 	static class _HEX {
-		public static String encode(byte[] b) {
-			return DatatypeConverter.printHexBinary(b);
+		public static String encode(byte[] ar) {
+			StringBuilder sb = new StringBuilder(ar.length * 2);
+			for(byte b: ar)
+				sb.append(String.format("%02x", b));
+			return sb.toString();
 		}
 	}
 
@@ -36,14 +39,14 @@ public class SteamBase {
 	public static class _Base64 {
 		public static byte[] FromBase64String(String s) throws Throwable {
 			try {
-				return DatatypeConverter.parseBase64Binary(s);
+				return Base64.getDecoder().decode(s);
 			} catch (Exception ex) {
 				throw new Throwable("Invalid Base64 string!", ex);
 			}
 		}
 
 		public static String ToBase64String(byte[] b) {
-			return DatatypeConverter.printBase64Binary(b);
+			return new String(Base64.getEncoder().encode(b));
 		}
 	}
 	
@@ -79,7 +82,7 @@ public class SteamBase {
 	public static String extractStringValue(String JSON, String value) {
 		char[] json = JSON.toCharArray();
 		String tmp = "";
-		boolean finded = false;
+		boolean found = false;
 
 		int index = JSON.indexOf(value);
 		if(index < 0)
@@ -89,14 +92,14 @@ public class SteamBase {
 			element = json[i];
 
 			if (element == '"' && prev != '\\')
-				if (finded)
+				if (found)
 					break;
 				else {
-					finded = true;
+					found = true;
 					continue;
 				}
 
-			if (finded)
+			if (found)
 				tmp += element;
 			prev = element;
 		}
